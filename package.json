@@ -1,0 +1,18 @@
+{
+  "name": "coredb-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "database.wrapper": "file:local_modules/database.wrapper-2.0.0.tgz",
+    "polka": "^0.5.2",
+    "simple-express-logger": "^2.0.0"
+  }
+}
