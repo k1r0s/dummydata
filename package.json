@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
-    "database.wrapper": "file:local_modules/database.wrapper-2.0.0.tgz",
+    "database.wrapper": "file:local_modules/database.wrapper-2.1.0.tgz",
     "polka": "^0.5.2",
     "simple-express-logger": "^2.0.0"
   }

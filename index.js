@@ -1,6 +1,6 @@
 const path = require("path");
 const polka = require("polka");
-const { json } = require('body-parser');
+const { json, text } = require('body-parser');
 const logger = require('simple-express-logger');
 const DatabaseWrapper = require('database.wrapper');
 const { PORT=80, PFOLDER="persistancefs" } = process.env;
@@ -50,6 +50,8 @@ const dbCrud = (method, entity, search, data) => {
       }
     case "PUT":
       return dbw.update(entity, search, data);
+    case "PATCH":
+      return dbw.compute(entity, search, eval(data));
   }
 }
 
@@ -64,6 +66,8 @@ polka()
   })
   .get(modelPath, dbMiddleware)
   .delete(modelPath, dbMiddleware)
+  .use(text())
+  .patch(modelPath, dbMiddleware)
   .use(json())
   .post(modelPath, dbMiddleware)
   .put(modelPath, dbMiddleware)
