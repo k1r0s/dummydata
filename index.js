@@ -1,5 +1,6 @@
 const path = require("path");
 const polka = require("polka");
+const safeEval = require("safe-eval");
 const { json, text } = require('body-parser');
 const logger = require('simple-express-logger');
 const DatabaseWrapper = require('database.wrapper');
@@ -7,7 +8,7 @@ const { PORT=80, PFOLDER="persistancefs" } = process.env;
 
 const dbw = new DatabaseWrapper;
 
-dbw.setConfig([PFOLDER, "data.json"].join("/"), { persons: [] });
+dbw.setConfig([PFOLDER, "data.json"].join("/"), {});
 
 const parseSearch = str => !str ? undefined: str.slice(1).split("&").reduce((ac, se) => {
     const [key, value] = se.split("=");
@@ -16,9 +17,10 @@ const parseSearch = str => !str ? undefined: str.slice(1).split("&").reduce((ac,
   }, {});
 
 const modelPath = "/model/:entity";
+const singleModelPath = "/model/:entity/:id";
 
 const dbMiddleware = (req, res) => {
-  dbCrud(req.method, req.params.entity, req.parsedSearch, req.body).then(data =>
+  dbCrud(req.method, req.params, req.parsedSearch, req.body).then(data =>
     writeResponse(res, data));
 }
 
@@ -35,23 +37,29 @@ const writeResponse = (res, data) => {
   res.end();
 }
 
-const dbCrud = (method, entity, search, data) => {
+const dbCrud = (method, params, search, data) => {
+  const { entity, id } = params;
+
   switch(method) {
     case "POST":
       return dbw.create(entity, data);
     case "DELETE":
-      if(!search) return Promise.reject();
-      return dbw.remove(entity, search);
+      if(!id) return Promise.reject();
+      return dbw.remove(entity, { id });
     case "GET":
-      if(search) {
+      if(id) {
+        return dbw.one(entity, { id });
+      } else if(search) {
         return dbw.filter(entity, search);
       } else {
         return dbw.read(entity);
       }
     case "PUT":
-      return dbw.update(entity, search, data);
+      if(!id) return Promise.reject();
+      return dbw.update(entity, { id }, data);
     case "PATCH":
-      return dbw.compute(entity, search, eval(data));
+      if(!id) return Promise.reject();
+      return dbw.compute(entity, { id }, safeEval(data));
   }
 }
 
@@ -65,12 +73,13 @@ polka()
     next();
   })
   .get(modelPath, dbMiddleware)
-  .delete(modelPath, dbMiddleware)
+  .get(singleModelPath, dbMiddleware)
+  .delete(singleModelPath, dbMiddleware)
   .use(text())
   .patch(modelPath, dbMiddleware)
   .use(json())
   .post(modelPath, dbMiddleware)
-  .put(modelPath, dbMiddleware)
+  .put(singleModelPath, dbMiddleware)
   .listen(PORT, err => {
     if(err) throw err;
   });
