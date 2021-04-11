@@ -1,27 +1,30 @@
 const path = require("path");
 const polka = require("polka");
 const safeEval = require("safe-eval");
+const query = require("./query");
 const { json, text } = require('body-parser');
 const logger = require('simple-express-logger');
 const DatabaseWrapper = require('database.wrapper');
-const { PORT=80, PFOLDER="persistancefs" } = process.env;
+const { ENTITIES, PORT=80, PFOLDER="persistancefs" } = process.env;
 
 const dbw = new DatabaseWrapper;
 
-dbw.setConfig([PFOLDER, "data.json"].join("/"), {});
+const defaults = ENTITIES.split(",").reduce((acc, cur) => ({ ...acc, [cur]: [] }), {});
 
-const parseSearch = str => !str ? undefined: str.slice(1).split("&").reduce((ac, se) => {
-    const [key, value] = se.split("=");
-    ac[key] = decodeURIComponent(value);
-    return ac;
-  }, {});
+dbw.setConfig([PFOLDER, "data.json"].join("/"), defaults);
 
-const modelPath = "/model/:entity";
-const singleModelPath = "/model/:entity/:id";
+const sendErr = (err, res) => {
+  res.statusCode=401;
+  res.end(err.message);
+}
+
+const modelPath = "/:entity";
+const singleModelPath = "/:entity/:id";
 
 const dbMiddleware = (req, res) => {
-  dbCrud(req.method, req.params, req.parsedSearch, req.body).then(data =>
-    writeResponse(res, data));
+  dbCrud(req.method, req.params, req.search, req.body)
+    .then(data => writeResponse(res, data))
+    .catch(err => sendErr(err, res));
 }
 
 const writeResponse = (res, data) => {
@@ -44,21 +47,30 @@ const dbCrud = (method, params, search, data) => {
     case "POST":
       return dbw.create(entity, data);
     case "DELETE":
-      if(!id) return Promise.reject();
+      if(!id) return Promise.reject({ message: "an id is required"});
       return dbw.remove(entity, { id });
     case "GET":
       if(id) {
         return dbw.one(entity, { id });
       } else if(search) {
-        return dbw.filter(entity, search);
+        let predicate;
+        try {
+          predicate = query.buildPredicate(search.substr(1));
+        } catch (e) {
+          console.log(e);
+          return Promise.reject({ message: "error building predicate" });
+        }
+        if(typeof predicate !== "function") return Promise.reject({ message: "wrong predicate" });
+        return dbw.filter(entity, predicate);
+
       } else {
         return dbw.read(entity);
       }
     case "PUT":
-      if(!id) return Promise.reject();
+      if(!id) return Promise.reject({ message: "an id is required"});
       return dbw.update(entity, { id }, data);
     case "PATCH":
-      if(!id) return Promise.reject();
+      if(!id) return Promise.reject({ message: "an id is required"});
       return dbw.compute(entity, { id }, safeEval(data));
   }
 }
@@ -67,10 +79,6 @@ polka()
   .use(logger())
   .get("/", (req, res) => {
     res.end("Coredb API | alpha");
-  })
-  .use((req, res, next) => {
-    req.parsedSearch = parseSearch(req.search);
-    next();
   })
   .get(modelPath, dbMiddleware)
   .get(singleModelPath, dbMiddleware)

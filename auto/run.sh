@@ -4,6 +4,7 @@ docker run \
 -d \
 --restart always \
 -v /home/pi/db:/app/persistancefs \
+-e ENTITIES="reports,products,lines" \
 --network rpinet \
---name coredb-service \
-k1r0s/coredb-service
+--name m-data \
+k1r0s/m-data

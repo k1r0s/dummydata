@@ -4,14 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ENTITIES='persons' node index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
-    "database.wrapper": "file:local_modules/database.wrapper-2.1.0.tgz",
+    "database.wrapper": "file:local_modules/database.wrapper-2.2.0.tgz",
     "polka": "^0.5.2",
     "safe-eval": "^0.4.1",
     "simple-express-logger": "^2.0.0"

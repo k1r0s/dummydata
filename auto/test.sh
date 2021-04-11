@@ -1,8 +1,9 @@
 #!/bin/sh
 
 docker run \
--d \
+-ti \
+-p 3000:80 \
+-e ENTITIES="persons" \
 --rm \
---network host \
---name coredb-service \
-k1r0s/coredb-service
+--name m-data \
+k1r0s/m-data
