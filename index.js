@@ -22,6 +22,10 @@ const modelPath = "/:entity";
 const singleModelPath = "/:entity/:id";
 
 const dbMiddleware = (req, res) => {
+  if(!ENTITIES.split(",").includes(req.params.entity)) {
+    res.statusCode=404;
+    res.end();
+  };
   dbCrud(req.method, req.params, req.search, req.body)
     .then(data => writeResponse(res, data))
     .catch(err => sendErr(err, res));
