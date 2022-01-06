@@ -11,17 +11,17 @@ self.buildStatement = expression => {
   const [match, prop, cmd, val] = reg.exec(expression);
   switch (cmd) {
     case "eq":
-      return `sub['${prop}'] === '${val}'`;
+      return `String(sub.${prop}) === '${val}'`;
     case "gt":
-      return `sub['${prop}'] > Number('${val}')`;
+      return `sub.${prop} > Number('${val}')`;
     case "lt":
-      return `sub['${prop}'] < Number('${val}')`;
+      return `sub.${prop} < Number('${val}')`;
     case "sw":
-      return `sub['${prop}'].startsWith('${val}')`;
+      return `sub.${prop}.startsWith('${val}')`;
     case "ew":
-      return `sub['${prop}'].endsWith('${val}')`;
+      return `sub.${prop}.endsWith('${val}')`;
     case "in":
-      return `sub['${prop}'].includes('${val}')`;
+      return `sub.${prop}.includes('${val}')`;
   }
 };
 
