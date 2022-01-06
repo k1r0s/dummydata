@@ -1,3 +1,6 @@
 #!/bin/sh
 
-curl "localhost/model/persons" -v
+curl "localhost:3000/persons" -v
+# curl "localhost:3000/persons/kXdr4JqWL" -v
+# curl "localhost:3000/persons/kXd892798719nonexistinguser" -v
+

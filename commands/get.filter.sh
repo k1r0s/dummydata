@@ -1,3 +1,4 @@
 #!/bin/sh
 
-curl "localhost/model/persons?name=John%20Doe" -v
+# curl "localhost:3000/persons?name,sw,Jerso" -v # lookup
+# curl "localhost:3000/persons/COYdpcCsc9" -v # fetch specific id

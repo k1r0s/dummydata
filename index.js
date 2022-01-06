@@ -2,9 +2,9 @@ const path = require("path");
 const polka = require("polka");
 const safeEval = require("safe-eval");
 const query = require("./query");
-const { json, text } = require('body-parser');
-const logger = require('simple-express-logger');
-const DatabaseWrapper = require('database.wrapper');
+const { json, text } = require("body-parser");
+const logger = require("simple-express-logger");
+const DatabaseWrapper = require("database.wrapper");
 const { ENTITIES, PORT=80, PFOLDER="persistancefs" } = process.env;
 
 const dbw = new DatabaseWrapper;

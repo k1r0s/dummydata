@@ -1,7 +1,7 @@
 #!/bin/sh
 
 docker run \
--ti \
+-d \
 -p 3000:80 \
 -e ENTITIES="persons" \
 --rm \

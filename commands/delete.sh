@@ -1,3 +1,3 @@
 #!/bin/sh
 
-curl -X DELETE "localhost/model/persons?name=Malik%20Hyen" -v
+curl -X DELETE "localhost:3000/persons/COYdpcCsc9" -v
